@@ -1,6 +1,9 @@
 use std::fmt;
 use crate::amount::{Amount};
+use bincode;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Ingredient {
     pub name: String,
     pub quantity: Amount,
@@ -11,7 +14,6 @@ impl fmt::Display for Ingredient {
         write!(f, "{}, {}", self.name, self.quantity)
     }
 }
-
 
 
 

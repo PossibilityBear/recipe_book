@@ -1,4 +1,8 @@
-use std::fmt::{Display, Formatter, Result};
+use std::fmt::{Display, Formatter};
+use std::fmt;
+use bincode;
+use serde::{Serialize, Deserialize};
+use serde::ser::{SerializeStruct, Serializer};
 
 pub trait Quantity {
     fn count(&self) -> f64;
@@ -6,12 +10,12 @@ pub trait Quantity {
 }
 
 impl Display for dyn Quantity {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}, {}", self.count(), self.unit())
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum UnitType{
     Mass(MassUnits),
     Volume(VolumeUnits),
@@ -28,13 +32,12 @@ impl Unit for UnitType{
 }
 
 impl Display for UnitType {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{:?}", self.unit_type())
     }
 }
 
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VolumeUnits {
     Gallon,
     Quart,
@@ -53,7 +56,7 @@ impl Unit for VolumeUnits {
     } 
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MassUnits {
     Oz,
     Lb,
@@ -67,13 +70,14 @@ impl Unit for MassUnits {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Amount {
     pub quantity: f64,
     pub unit: UnitType, 
 }
 
 impl Display for Amount {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}, {}", self.quantity, self.unit)
     }
 }
@@ -93,4 +97,11 @@ impl Quantity for Amount {
     // }
 }
 
-
+// impl Serialize for Amount {
+//     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+//         let mut s = serializer.serialize_struct("Amount", 2)?;
+//         s.serialize_field("quantity", &self.quantity)?;
+//         s.serialize_field("unit", &self.unit)?;
+//         s.end()
+//     }
+// }
